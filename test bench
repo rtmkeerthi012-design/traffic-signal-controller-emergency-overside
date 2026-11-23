@@ -1,0 +1,76 @@
+module vending_machine_tb;
+
+reg clk, reset;
+reg [1:0] coin;
+reg select_A, select_B;
+
+wire dispense_A, dispense_B;
+wire [4:0] change;
+
+vending_machine uut (
+    .clk(clk),
+    .reset(reset),
+    .coin(coin),
+    .select_A(select_A),
+    .select_B(select_B),
+    .dispense_A(dispense_A),
+    .dispense_B(dispense_B),
+    .change(change)
+);
+
+// Clock generation
+initial begin
+    clk = 0;
+    forever #5 clk = ~clk;
+end
+
+// Test sequence
+initial begin
+
+    reset = 1;
+    coin = 0;
+    select_A = 0;
+    select_B = 0;
+
+    #10 reset = 0;
+
+    // Test 1: Product A - Rs.10
+    #10 coin = 2'b10;
+    #10 coin = 2'b00;
+    select_A = 1;
+    #10 select_A = 0;
+
+    // Test 2: Product B - Rs.15
+    #10 coin = 2'b10;
+    #10 coin = 2'b01;
+    #10 coin = 2'b00;
+    select_B = 1;
+    #10 select_B = 0;
+
+    // Test 3: Product A with Rs.5 change
+    #10 coin = 2'b10;
+    #10 coin = 2'b01;
+    #10 coin = 2'b01;
+    #10 coin = 2'b00;
+    select_A = 1;
+    #10 select_A = 0;
+
+    // Test 4: Product B with Rs.5 change
+    #10 coin = 2'b10;
+    #10 coin = 2'b10;
+    #10 coin = 2'b00;
+    select_B = 1;
+    #10 select_B = 0;
+
+    #20 $finish;
+
+end
+
+// Monitor outputs
+initial begin
+    $monitor("Time=%0t | Coin=%b | A=%b | B=%b | Dispense_A=%b | Dispense_B=%b | Change=%d",
+    $time, coin, select_A, select_B,
+    dispense_A, dispense_B, change);
+end
+
+endmodule
